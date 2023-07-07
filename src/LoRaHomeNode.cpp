@@ -70,7 +70,7 @@
  * @brief Construct a new LoRaHomeNode::LoRaHomeNode object
  *
  */
-LoRaHomeNode::LoRaHomeNode(ChickenCorpDoor& node) :
+LoRaHomeNode::LoRaHomeNode(Bee& node) :
   mNode(node)
 {
 }
@@ -183,17 +183,17 @@ void LoRaHomeNode::sendToGateway()
   int retry = 0;
   // DEBUG_MSG("LoRaHomeNode::sendToGateway()");
   uint8_t txBuffer[LH_FRAME_MAX_SIZE];
-  // DEBUG_MSG("--- create LoraHomeFrame");
+  DEBUG_MSG("--- create LoraHomeFrame");
   // create frame
   LoRaHomeFrame lhf(MY_NETWORK_ID, mNode.getNodeId(), LH_NODE_ID_GATEWAY, LH_MSG_TYPE_NODE_MSG_ACK_REQ, mNode.getTxCounter());
   // create payload
-  // DEBUG_MSG("--- create LoraHomePayload");
+  DEBUG_MSG("--- create LoraHomePayload");
   StaticJsonDocument<128> jsonDoc;
   mNode.addJsonTxPayload(jsonDoc);
   serializeJson(jsonDoc, lhf.jsonPayload, LH_FRAME_MAX_PAYLOAD_SIZE);
   //add payload to the frame if any
   uint8_t size = lhf.serialize(txBuffer);
-  // DEBUG_MSG("--- LoraHomeFrame serialized");
+  DEBUG_MSG("--- LoraHomeFrame serialized");
   // send the LoRa message until valid ack is received with max retries
   do
   {

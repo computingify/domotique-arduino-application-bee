@@ -4,12 +4,12 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <LoRaHomeFrame.h>
-#include "ChickenCorpDoor.h"
+#include "Bee.h"
 
 class LoRaHomeNode
 {
 public:
-    LoRaHomeNode(ChickenCorpDoor& node);
+    LoRaHomeNode(Bee& node);
     void setup();
     void sendToGateway();
     bool receiveLoraMessage();
@@ -22,7 +22,7 @@ protected:
     static uint16_t crc16_ccitt(char* data, unsigned int data_len);
     StaticJsonDocument<LH_FRAME_MAX_PAYLOAD_SIZE> jsonDoc;
 
-    ChickenCorpDoor& mNode;
+    Bee& mNode;
 };
 
 #endif

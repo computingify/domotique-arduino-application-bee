@@ -2,10 +2,12 @@
 #include <ArduinoJson.h>
 #include <LoRa.h>
 #include <LoRaHomeNode.h>
+#include <LowPower.h>
 #include <SPI.h>
-#include "ChickenCorpDoor.h"
+#include "Bee.h"
+#include "LowPower.h"
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #define DEBUG_MSG(x) Serial.println(F(x))
@@ -15,12 +17,26 @@
 #endif
 
 // Objects instentiation
-ChickenCorpDoor mNode;
+Bee mNode;
 LoRaHomeNode mLoRaHome(mNode);
 
 // sampling management
 unsigned long lastSendTime = 0;    // last send time
 unsigned long lastProcessTime = 0; // last processing time
+
+void goToSleep() {
+  digitalWrite(LED_BUILTIN, LOW);
+
+  // Serial.println("\nArduino:- Go to sleep");
+  delay(500);
+  LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_OFF, USART0_OFF, TWI_OFF);
+
+  digitalWrite(LED_BUILTIN, HIGH);
+
+  delay(2000);  // time driver to go back in run mode
+  // Serial.println("Arduino:- Hey I just Woke up");
+  // Serial.println("");
+}
 
 void setup()
 {
@@ -30,15 +46,15 @@ void setup()
   Serial.begin(115200);
   while (!Serial)
     ;
-#endif
   DEBUG_MSG("initializing LoRa Node");
+#endif
   // initialize LoRa    
   mLoRaHome.setup();
   // call node specific configuration (end user)
   mNode.appSetup();
 
-  // Update Data before start
-  mNode.appProcessing();
+  mLoRaHome.sendToGateway();
+  lastSendTime = millis(); // timestamp the message
 }
 
 /**
@@ -48,30 +64,14 @@ void setup()
 */
 void loop()
 {
-  bool isNewMessageReceived(false);
   unsigned long tick = millis();
 
-  // Application processing Task
-  if ((tick - lastProcessTime) > mNode.getProcessingTimeInterval()
-    || isNewMessageReceived) {
-    bool isRunFastly = mNode.appProcessing();
-
-    lastProcessTime = millis();
-
-    // Artificially set the time after ProcessingTimeInterval
-    if (isRunFastly) {
-      lastProcessTime -= mNode.getProcessingTimeInterval();
-    }
-  }
-
   // Send Task
-  if (((tick - lastSendTime) > mNode.getTransmissionTimeInterval())
-    || (mNode.getTransmissionNowFlag() == true)) {
-    mNode.setTransmissionNowFlag(false);
+  if ((tick - lastSendTime) > mNode.getTransmissionTimeInterval()) {
     mLoRaHome.sendToGateway();
     lastSendTime = millis(); // timestamp the message
   }
 
-  // Receive Task
-  isNewMessageReceived = mLoRaHome.receiveLoraMessage();
+  goToSleep(); // during 10.5s
+  // delay(3000);
 }
