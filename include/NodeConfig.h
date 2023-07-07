@@ -13,6 +13,4 @@ const uint16_t MY_NETWORK_ID = 0xACDC;
 
 #define PIN_DHT22 A5
 #define PIN_POWER_MONITOR A2
-#define NUMBER_OF_BATTERY_CELL 2
-#define BATTERY_CELL_VOLTAGE 3.2
 #endif 

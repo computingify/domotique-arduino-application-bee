@@ -16,7 +16,7 @@
  **********************************************************************/
 Bee::Bee() :
     mTempHumidity(PIN_DHT22, DHT22),
-    mBattery(PIN_POWER_MONITOR, NUMBER_OF_BATTERY_CELL, BATTERY_CELL_VOLTAGE)
+    mBattery(PIN_POWER_MONITOR)
 {
 }
 
